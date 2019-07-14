@@ -1,0 +1,35 @@
+{
+    "method": "verify"
+}
+
+{
+    "method": "error",
+    "error": "text error"
+}
+
+{  
+    "method": "objects",
+    "bullets": [  
+
+    ],
+    "players": [  
+        {  
+            "height": 100,
+            "id_player": 112908,
+            "life": 5,
+            "nickname":"sfsdfsd",
+            "pos_x": 244,
+            "pos_y": 463,
+            "rotation": 173.7887497836368,
+            "score": 0,
+            "width": 100
+        }
+    ],
+    "scene": {  
+        "height": 1080,
+        "pos_x": 0,
+        "pos_y": 0,
+        "width": 1920
+    }
+}
+
