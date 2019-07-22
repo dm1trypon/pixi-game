@@ -1,9 +1,10 @@
 const Objects = require('./Objects');
 
 module.exports = class Parser {
-    constructor(nickname) {
+    constructor(nickname, pixiApp) {
+        this.pixiApp = pixiApp;
         this.objects = new Objects(nickname);
-        this.connection = null;
+        this.client = null;
         this.shot = true;
     }
 
@@ -12,7 +13,7 @@ module.exports = class Parser {
 
         switch (jsonData.method) {
             case 'verify':
-                this.connection.sendUTF(this.toJson(jsonData.method));
+                this.client.send(this.toJson(jsonData.method));
                 
                 break;
             
@@ -21,13 +22,14 @@ module.exports = class Parser {
                 const ownPlayers = this.objects.getPlayers;
 
                 for (const player of players) {
-                    const {nickname} = player;
+                    const {nickname, pos_x: posX, pos_y: posY} = player;
     
-                    if (ownPlayers.includes(nickname)) {
-                        continue;
+                    if (!ownPlayers.includes(nickname)) {
+                        this.objects.addPlayer(nickname);
+                        this.pixiApp.addPlayer(nickname);
                     }
     
-                    this.objects.addPlayer(nickname);
+                    this.pixiApp.move(nickname, {posX, posY});
                 }
     
                 for (const playerName of ownPlayers) {
@@ -38,13 +40,6 @@ module.exports = class Parser {
                     this.objects.delPlayer(this.objects.getNickname);
                 }
 
-                if (!this.shot) {
-                    break;
-                }
-
-                this.connection.sendUTF(this.toJson('shot'));
-                this.shot = false;
-
                 break;
 
             default:
@@ -52,8 +47,8 @@ module.exports = class Parser {
         }
     }
 
-    setConnection(connection) {
-        this.connection = connection;
+    setClient(client) {
+        this.client = client;
     }
 
     toJson(type) {

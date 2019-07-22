@@ -1,3 +1,3 @@
-const PixiApp = require('./modules/PixiApp');
+const GameClient = require('./modules/GameClient');
 
-new PixiApp();
+new GameClient('localhost', 44444, 'FreeMan');

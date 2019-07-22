@@ -1,5 +1,4 @@
 const PIXI = require('pixi.js');
-const GameClient = require('./GameClient');
 
 module.exports = class PixiApp {
     constructor() {
@@ -7,25 +6,29 @@ module.exports = class PixiApp {
             width: 800, height: 600, backgroundColor: 0x1099bb, resolution: window.devicePixelRatio || 1,
         });
 
-        this.gameClient = new GameClient('localhost', 44444, 'FreeMan');
-        this.process();
+        this.players = new Map();
+        this.texture = PIXI.Texture.from('http://localhost:3000/bunny');
+
+        document.body.appendChild(this.app.view);
     }
 
-    process() {
-        document.body.appendChild(this.app.view);
+    addPlayer(nickname) {
+        const bunny = new PIXI.Sprite(this.texture);
 
-        const texture = PIXI.Texture.from('http://localhost:3000/bunny');
-        const bunny = new PIXI.Sprite(texture);
+        this.players.set(nickname, bunny);
 
         bunny.x = 100;
         bunny.y = 100;
 
         this.app.stage.addChild(bunny);
+    }
 
-        this.app.ticker.add((delta) => {
-            bunny.x += 2 * delta;
-            bunny.y += 2 * delta;
-        });
+    move(nickname, position) {
+        const bunny = this.players.get(nickname);
+        const {posX, posY} = position;
+
+        bunny.x = posX;
+        bunny.y = posY;
     }
 }
 
