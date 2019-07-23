@@ -18,26 +18,56 @@ module.exports = class Parser {
                 break;
             
             case 'objects':
-                const players = jsonData.players;
+                const {players, bullets} = jsonData;
+
                 const ownPlayers = this.objects.getPlayers;
+                const ownBullets = this.objects.getBullets;
+
+                let bNames = [];
+                let pNames = [];
 
                 for (const player of players) {
                     const {nickname, pos_x: posX, pos_y: posY} = player;
+
+                    pNames.push(nickname);
     
                     if (!ownPlayers.includes(nickname)) {
                         this.objects.addPlayer(nickname);
                         this.pixiApp.addPlayer(nickname);
                     }
     
-                    this.pixiApp.move(nickname, {posX, posY});
+                    this.pixiApp.movePlayer(nickname, {posX, posY});
+                }
+
+                for (const bullet of bullets) {
+                    const {pos_x: posX, pos_y: posY, id_bullet: idBullet} = bullet;
+
+                    bNames.push(idBullet);
+    
+                    if (!ownBullets.includes(idBullet)) {
+                        this.objects.addBullet(idBullet);
+                        this.pixiApp.addBullet(idBullet);
+                    }
+    
+                    this.pixiApp.moveBullet(idBullet, {posX, posY});
                 }
     
                 for (const playerName of ownPlayers) {
-                    if (players.includes(playerName)) {
+                    if (pNames.includes(playerName)) {
+                        continue;
+                    }
+
+                    this.objects.delPlayer(playerName);
+                    this.pixiApp.delPlayer(playerName);
+                }
+
+                for (const idBullet of ownBullets) {
+                    if (bNames.includes(idBullet)) {
                         continue;
                     }
     
-                    this.objects.delPlayer(this.objects.getNickname);
+                    this.objects.delBullet(idBullet);
+                    this.pixiApp.delBullet(idBullet);
                 }
 
                 break;

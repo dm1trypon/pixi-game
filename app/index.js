@@ -11,8 +11,12 @@ router.get('/script/', (req, res) => {
   res.sendFile(path.resolve('./dist/main.js'));
 });
 
-router.get('/bunny/', (req, res) => {
-  res.sendFile(path.resolve('./app/img/bunny.png'));
+router.get('/player/', (req, res) => {
+  res.sendFile(path.resolve('./app/img/player.png'));
+});
+
+router.get('/bullet/', (req, res) => {
+  res.sendFile(path.resolve('./app/img/bullet.png'));
 });
 
 app.use('/', router);
