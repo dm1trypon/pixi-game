@@ -8,12 +8,24 @@ module.exports = class Parser {
         this.shot = true;
     }
 
+    onSend(data) {
+        if (!this.client) {
+            return;
+        }
+
+        this.client.send(data);
+    }
+
     work(data) {
         const jsonData = JSON.parse(data);
 
         switch (jsonData.method) {
             case 'verify':
-                this.client.send(this.toJson(jsonData.method));
+                if (!this.client) {
+                    return;
+                }
+
+                this.client.send(this.toJson(jsonData.method, {}));
                 
                 break;
             
@@ -81,16 +93,34 @@ module.exports = class Parser {
         this.client = client;
     }
 
-    toJson(type) {
+    toJson(type, data) {
         console.log(`type: ${type}`);
 
         switch(type) {
+            case 'control':
+                if (!data.hasOwnProperty(key) && !data.hasOwnProperty(isHold)) {
+                    return '';
+                }
+
+                const {key, isHold} = data;
+
+                const controlJson = {
+                    method: type,
+                    nickname: this.objects.getNickname,
+                    key: key,
+                    hold: isHold,
+                }
+                
+                console.log(`json: ${JSON.stringify(controlJson)}`);
+
+                return JSON.stringify(verifyJson);
+
             case 'verify':
                 const verifyJson = {
                     method: type,
                     nickname: this.objects.getNickname,
-                    width: 800,
-                    height: 600,
+                    width: 1920,
+                    height: 1080,
                 };
 
                 console.log(`json: ${JSON.stringify(verifyJson)}`);

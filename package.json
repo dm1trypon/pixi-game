@@ -19,6 +19,8 @@
   "dependencies": {
     "express": "^4.17.1",
     "pixi.js": "^5.0.4",
+    "pixi.js-keyboard": "^1.0.9",
+    "pixi.js-mouse": "^1.0.4",
     "websocket": "^1.0.29"
   }
 }

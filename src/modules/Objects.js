@@ -4,8 +4,8 @@ module.exports = class Objects {
         this.bullets = [];
         this.nickname = nickname;
         this.resolution = {
-            width: 800,
-            height: 600,
+            width: 1920,
+            height: 1080,
         };
     }
 

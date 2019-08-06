@@ -1,18 +1,20 @@
 const Parser = require('./Parser');
 const PixiApp = require('./PixiApp');
+const Control = require('./Control');
 
 module.exports = class GameClient {
     constructor(host, port, nickname) {
         this.client = new WebSocket(`ws://${host}:${port}/`);
         this.pixiApp = new PixiApp();
         this.parser = new Parser(nickname, this.pixiApp);
+        this.control = new Control(this.parser);
         this.parser.setClient(this.client);
 
         this.start();
     }
 
     start() {
-        this.client.onerror = (error) => {
+        this.client.onerror = error => {
             console.log(`Connect Error: ${error.toString()}`);
         };
          
@@ -26,7 +28,7 @@ module.exports = class GameClient {
             console.log(`Code: ${event.code} Reason: ${event.reason}`);
         };
 
-        this.client.onmessage = (message) => {
+        this.client.onmessage = message => {
             this.parser.work(message.data);
         };
 

@@ -3,7 +3,7 @@ const PIXI = require('pixi.js');
 module.exports = class PixiApp {
     constructor() {
         this.app = new PIXI.Application({
-            width: 800, height: 600, backgroundColor: 0x1099bb, resolution: window.devicePixelRatio || 1,
+            width: 1920, height: 1080, backgroundColor: 0x1099bb, resolution: window.devicePixelRatio || 1,
         });
 
         this.players = new Map();
@@ -21,6 +21,8 @@ module.exports = class PixiApp {
 
         player.x = 100;
         player.y = 100;
+        player.width = 50;
+        player.height = 50;
 
         this.app.stage.addChild(player);
     }
