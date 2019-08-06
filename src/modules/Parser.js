@@ -13,6 +13,8 @@ module.exports = class Parser {
             return;
         }
 
+        console.log(`Send to client: ${data}`);
+
         this.client.send(data);
     }
 
@@ -98,11 +100,11 @@ module.exports = class Parser {
 
         switch(type) {
             case 'control':
-                if (!data.hasOwnProperty(key) && !data.hasOwnProperty(isHold)) {
-                    return '';
-                }
-
                 const {key, isHold} = data;
+
+                // if (!data.hasOwnProperty(key) && !data.hasOwnProperty(isHold)) {
+                //     return '';
+                // }
 
                 const controlJson = {
                     method: type,
@@ -113,7 +115,7 @@ module.exports = class Parser {
                 
                 console.log(`json: ${JSON.stringify(controlJson)}`);
 
-                return JSON.stringify(verifyJson);
+                return JSON.stringify(controlJson);
 
             case 'verify':
                 const verifyJson = {

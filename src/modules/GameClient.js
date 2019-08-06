@@ -7,13 +7,12 @@ module.exports = class GameClient {
         this.client = new WebSocket(`ws://${host}:${port}/`);
         this.pixiApp = new PixiApp();
         this.parser = new Parser(nickname, this.pixiApp);
-        this.control = new Control(this.parser);
         this.parser.setClient(this.client);
-
-        this.start();
     }
 
     start() {
+        new Control(this.parser);
+
         this.client.onerror = error => {
             console.log(`Connect Error: ${error.toString()}`);
         };
