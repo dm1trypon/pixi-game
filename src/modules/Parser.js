@@ -102,10 +102,6 @@ module.exports = class Parser {
             case 'control':
                 const {key, isHold} = data;
 
-                // if (!data.hasOwnProperty(key) && !data.hasOwnProperty(isHold)) {
-                //     return '';
-                // }
-
                 const controlJson = {
                     method: type,
                     nickname: this.objects.getNickname,
@@ -116,6 +112,20 @@ module.exports = class Parser {
                 console.log(`json: ${JSON.stringify(controlJson)}`);
 
                 return JSON.stringify(controlJson);
+
+            case 'cursor':
+                const {posX, posY} = data;
+
+                const cursorJson = {
+                    method: type,
+                    nickname: this.objects.getNickname,
+                    pos_x: posX,
+                    pos_y: posY,
+                }
+
+                console.log(`json: ${JSON.stringify(cursorJson)}`);
+
+                return JSON.stringify(cursorJson);
 
             case 'verify':
                 const verifyJson = {
@@ -130,12 +140,14 @@ module.exports = class Parser {
                 return JSON.stringify(verifyJson);
 
             case 'shot':
+                const {x, y, weapon} = data;
+
                 const shotJson = {
                     method: type,
                     nickname: this.objects.getNickname,
-                    weapon: 'plazma',
-                    x: 100,
-                    y: 100,
+                    weapon,
+                    x,
+                    y,
                 };
 
                 console.log(`json: ${JSON.stringify(shotJson)}`);

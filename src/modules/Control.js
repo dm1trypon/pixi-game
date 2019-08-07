@@ -1,10 +1,18 @@
+const Framer = require('./Framer');
+
 module.exports = class Control {
     constructor(parser) {
         this.parser = parser;
         this.keysMap = new Map();
-
+        this.directions = [];
+        this.isPressed = false;
+        this.interval = null;
+        this.mousePos = {posX: null, posY: null};
+        
         this.setKeys();
         this.setEvents();
+
+        this.framer = new Framer();
     }
 
     setKeys() {
@@ -18,31 +26,107 @@ module.exports = class Control {
         this.keysMap.set("s", "down");
     }
 
+    isDirection(data) {
+        const {direction, directions} = data;
+
+        return directions.length && (direction === 'left' || direction === 'right');
+    }
+
     setEvents() {
-        document.addEventListener('keyup', event => {
-            if (!this.keysMap.has(event.key)) {
-                return;
-            }
+        const {parser, directions, keysMap} = this;
 
-            if (event.repeat) {
-                return;
-            }
+        document.addEventListener('mousedown', async () => {
+            const {posX, posY} = this.mousePos;
 
-            this.parser.onSend(this.parser.toJson('control', {key: this.keysMap.get(event.key), isHold: false}));
-            console.log(`Key "${event.key}" released  [event: keyup]`);
+            this.interval = setInterval(() => {
+                parser.onSend(parser.toJson('shot', {posX, posY, weapon: 'plazma'}));
+            }, 50);
+        });
+
+        document.addEventListener('mouseup', () => {
+            clearInterval(this.interval);
+        });
+
+        document.addEventListener('mousemove', event => {
+            const {clientX: posX, clientY: posY} = event;
+
+            this.mousePos = {posX, posY};
+            
+            parser.onSend(parser.toJson('cursor', {posX, posY}));
         });
 
         document.addEventListener('keydown', event => {
-            if (!this.keysMap.has(event.key)) {
+            const {key, repeat} = event;
+
+            if (!keysMap.has(key)) {
                 return;
             }
 
-            if (event.repeat) {
+            if (repeat) {
                 return;
             }
 
-            this.parser.onSend(this.parser.toJson('control', {key: this.keysMap.get(event.key), isHold: true}));
-            console.log(`Key "${event.key}" released  [event: keydown]`);
+            const direction = keysMap.get(key);
+
+            if (directions.includes(direction)) {
+                return;
+            }
+
+            if (this.isDirection({directions, direction})) {
+                directions.unshift(direction);
+            } else {
+                directions.push(direction);
+            }
+
+            this.onDirection(key);
         });
+
+        document.addEventListener('keyup', event => {
+            const {key, repeat} = event;
+
+            if (!keysMap.has(key)) {
+                return;
+            }
+
+            if (repeat) {
+                return;
+            }
+
+            let newDirection;
+
+            for (const direction of directions) {
+                if (!newDirection) {
+                    newDirection = direction;
+
+                    continue;
+                }
+
+                newDirection = newDirection + '_' + direction;
+            }
+
+            parser.onSend(parser.toJson('control', {key: newDirection, isHold: false}));
+
+            directions.splice(directions.indexOf(keysMap.get(key)), 1);
+
+            this.onDirection(key);
+        });
+    }
+
+    onDirection(key) {
+        const {parser, directions} = this;
+
+        let newDirection;
+
+        for (const direction of directions) {
+            if (!newDirection) {
+                newDirection = direction;
+
+                continue;
+            }
+
+            newDirection = newDirection + '_' + direction;
+        }
+
+        parser.onSend(parser.toJson('control', {key: newDirection, isHold: true}));
     }
 }

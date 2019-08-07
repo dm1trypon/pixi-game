@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node app",
     "dev": "webpack-dev-server --mode development --open",
+    "wpw": "npx webpack --config webpack.config.js --watch",
     "build": "webpack --mode production"
   },
   "keywords": [],
