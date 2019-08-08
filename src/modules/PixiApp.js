@@ -51,8 +51,8 @@ module.exports = class PixiApp {
         const bullet = new PIXI.Sprite(this.txBullet);
         const {idBullet, posX, posY} = data;
 
-        bullet.width = 50;
-        bullet.height = 50;
+        bullet.width = 30;
+        bullet.height = 30;
         bullet.x = posX;
         bullet.y = posY;
 

@@ -128,13 +128,15 @@ module.exports = class Parser {
                 return JSON.stringify(controlJson);
 
             case 'cursor':
-                const {posX, posY} = data;
+                const {posX, posY, isShot} = data;
 
                 const cursorJson = {
                     method: type,
                     nickname: this.objects.getNickname,
                     pos_x: posX,
                     pos_y: posY,
+                    is_shot: isShot,
+                    weapon: this.objects.getWeapon,
                 }
 
                 console.log(`json: ${JSON.stringify(cursorJson)}`);
@@ -152,21 +154,6 @@ module.exports = class Parser {
                 console.log(`json: ${JSON.stringify(verifyJson)}`);
 
                 return JSON.stringify(verifyJson);
-
-            case 'shot':
-                const {x, y, weapon} = data;
-
-                const shotJson = {
-                    method: type,
-                    nickname: this.objects.getNickname,
-                    weapon,
-                    x,
-                    y,
-                };
-
-                console.log(`json: ${JSON.stringify(shotJson)}`);
-
-                return JSON.stringify(shotJson);
 
             default:
                 break;

@@ -12,7 +12,7 @@ module.exports = class Control {
         this.setKeys();
         this.setEvents();
 
-        new Framer(parser, this);
+        // new Framer(parser, this);
     }
 
     get getMousePos() {
@@ -49,6 +49,12 @@ module.exports = class Control {
 
         document.addEventListener('mouseup', () => {
             this.isPressed = false;
+            
+            const {clientX: posX, clientY: posY} = event;
+
+            this.mousePos = {posX, posY};
+
+            parser.onSend(parser.toJson('cursor', {posX, posY, isShot: this.isPressed}));
         });
 
         document.addEventListener('mousemove', event => {
@@ -56,7 +62,7 @@ module.exports = class Control {
 
             this.mousePos = {posX, posY};
             
-            parser.onSend(parser.toJson('cursor', {posX, posY}));
+            parser.onSend(parser.toJson('cursor', {posX, posY, isShot: this.isPressed}));
         });
 
         document.addEventListener('keydown', event => {
@@ -82,7 +88,7 @@ module.exports = class Control {
                 directions.push(direction);
             }
 
-            this.onDirection(key);
+            this.onDirection(true);
         });
 
         document.addEventListener('keyup', event => {
@@ -96,27 +102,21 @@ module.exports = class Control {
                 return;
             }
 
-            let newDirection;
-
-            for (const direction of directions) {
-                if (!newDirection) {
-                    newDirection = direction;
-
-                    continue;
-                }
-
-                newDirection = newDirection + '_' + direction;
-            }
-
-            parser.onSend(parser.toJson('control', {key: newDirection, isHold: false}));
+            this.onDirection(false);
 
             directions.splice(directions.indexOf(keysMap.get(key)), 1);
 
-            this.onDirection(key);
+            if (!directions.length) {
+                this.onDirection(false);
+
+                return;
+            }
+
+            this.onDirection(true);
         });
     }
 
-    onDirection(key) {
+    onDirection(isHold) {
         const {parser, directions} = this;
 
         let newDirection;
@@ -131,6 +131,6 @@ module.exports = class Control {
             newDirection = newDirection + '_' + direction;
         }
 
-        parser.onSend(parser.toJson('control', {key: newDirection, isHold: true}));
+        parser.onSend(parser.toJson('control', {key: newDirection, isHold}));
     }
 }
