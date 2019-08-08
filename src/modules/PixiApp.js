@@ -1,83 +1,122 @@
 const PIXI = require('pixi.js');
 
 module.exports = class PixiApp {
-    constructor() {
+    constructor(resolution) {
+        this.resolution = resolution;
+        
+        const {width, height} = this.resolution;
+
         this.app = new PIXI.Application({
-            width: 1920, height: 1080, backgroundColor: 0x1099bb, resolution: window.devicePixelRatio || 1,
+            width, height, backgroundColor: 0x000000, resolution: window.devicePixelRatio || 1,
         });
 
-        this.players = new Map();
-        this.bullets = new Map();
+        this.players = {};
+        this.bullets = {};
+        this.scenes = {};
+
         this.txPlayer = PIXI.Texture.from('http://localhost:3000/player');
         this.txBullet = PIXI.Texture.from('http://localhost:3000/bullet');
+        this.txScene = PIXI.Texture.from('http://localhost:3000/scene');
 
         document.body.appendChild(this.app.view);
     }
 
-    addPlayer(nickname) {
+    addScene(data) {
+        const {posX, posY, width, height} = data;
+        const scene = new PIXI.TilingSprite(this.txScene, width, height);
+
+        scene.x = posX;
+        scene.y = posY;
+        scene.width = width;
+        scene.height = height;
+
+        this.scenes['scene'] = scene;
+        this.app.stage.addChild(scene);
+    }
+
+    addPlayer(data) {
         const player = new PIXI.Sprite(this.txPlayer);
+        const {nickname, posX, posY} = data;
 
-        this.players.set(nickname, player);
+        player.x = posX;
+        player.y = posY;
+        player.width = 100;
+        player.height = 100;
 
-        player.x = 100;
-        player.y = 100;
-        player.width = 50;
-        player.height = 50;
-
+        this.players[nickname] = player;
         this.app.stage.addChild(player);
     }
 
-    addBullet(idBullet) {
+    addBullet(data) {
         const bullet = new PIXI.Sprite(this.txBullet);
+        const {idBullet, posX, posY} = data;
 
-        this.bullets.set(idBullet, bullet);
+        bullet.width = 50;
+        bullet.height = 50;
+        bullet.x = posX;
+        bullet.y = posY;
 
-        bullet.width = 20;
-        bullet.height = 20;
-        bullet.x = 100;
-        bullet.y = 100;
-
+        this.bullets[idBullet] = bullet;
         this.app.stage.addChild(bullet);
     }
 
     delPlayer(nickname) {
+        if (!this.players.hasOwnProperty(nickname)) {
+            console.log(`Can not find a player: ${nickname}`);
+
+            return;
+        }
+
         this.app.stage.removeChild(this.players[nickname]);
-        this.players.delete(nickname);
+
+        delete this.players.nickname;
     }
 
     delBullet(idBullet) {
-        if (!this.bullets.has(idBullet)) {
+        if (!this.bullets.hasOwnProperty(idBullet)) {
             console.log(`Can not find a bullet: ${idBullet}`);
 
             return;
         }
 
-        console.log(`Delete bullet: ${idBullet}`);
         this.app.stage.removeChild(this.bullets[idBullet]);
-        this.bullets.delete(idBullet);
+
+        delete this.bullets.idBullet;
     }
 
-    movePlayer(nickname, position) {
-        const object = this.players.get(nickname);
+    movePlayer(data) {
+        const {nickname, posX, posY} = data;
+
+        if (!this.players.hasOwnProperty(nickname)) {
+            console.log(`Can not find a player: ${nickname}`);
+
+            return;
+        }
+
+        const object = this.players[nickname];
 
         if (!object) {
             return;
         }
-
-        const {posX, posY} = position;
 
         object.x = posX;
         object.y = posY;
     }
 
-    moveBullet(idBullet, position) {
-        const object = this.bullets.get(idBullet);
+    moveBullet(data) {
+        const {idBullet, posX, posY} = data;
+
+        if (!this.bullets.hasOwnProperty(idBullet)) {
+            console.log(`Can not find a bullet: ${idBullet}`);
+
+            return;
+        }
+        
+        const object = this.bullets[idBullet];
 
         if (!object) {
             return;
         }
-
-        const {posX, posY} = position;
 
         object.x = posX;
         object.y = posY;

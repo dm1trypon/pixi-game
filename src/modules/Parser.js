@@ -8,12 +8,14 @@ module.exports = class Parser {
         this.shot = true;
     }
 
+    get getObjects() {
+        return this.objects;
+    }
+
     onSend(data) {
         if (!this.client) {
             return;
         }
-
-        console.log(`Send to client: ${data}`);
 
         this.client.send(data);
     }
@@ -32,38 +34,52 @@ module.exports = class Parser {
                 break;
             
             case 'objects':
-                const {players, bullets} = jsonData;
+                const {players, bullets, scene} = jsonData;
 
+                const ownScene = this.objects.getScene;
                 const ownPlayers = this.objects.getPlayers;
                 const ownBullets = this.objects.getBullets;
 
+                let sNames = [];
                 let bNames = [];
                 let pNames = [];
 
+                const {pos_x: posX, pos_y: posY, width, height} = scene;
+                const dataScene = {name: 'scene', posX, posY, width, height};
+
+                if (!ownScene.includes(name)) {
+                    this.objects.addScene(name);
+                    this.pixiApp.addScene(dataScene);
+                }
+
+                sNames.push()
+
                 for (const player of players) {
                     const {nickname, pos_x: posX, pos_y: posY} = player;
+                    const dataPlayer = {nickname, posX, posY};
 
                     pNames.push(nickname);
     
                     if (!ownPlayers.includes(nickname)) {
                         this.objects.addPlayer(nickname);
-                        this.pixiApp.addPlayer(nickname);
+                        this.pixiApp.addPlayer(dataPlayer);
                     }
     
-                    this.pixiApp.movePlayer(nickname, {posX, posY});
+                    this.pixiApp.movePlayer(dataPlayer);
                 }
 
                 for (const bullet of bullets) {
                     const {pos_x: posX, pos_y: posY, id_bullet: idBullet} = bullet;
+                    const dataBullet = {idBullet, posX, posY};
 
                     bNames.push(idBullet);
     
                     if (!ownBullets.includes(idBullet)) {
                         this.objects.addBullet(idBullet);
-                        this.pixiApp.addBullet(idBullet);
+                        this.pixiApp.addBullet(dataBullet);
                     }
     
-                    this.pixiApp.moveBullet(idBullet, {posX, posY});
+                    this.pixiApp.moveBullet(dataBullet);
                 }
     
                 for (const playerName of ownPlayers) {
@@ -96,8 +112,6 @@ module.exports = class Parser {
     }
 
     toJson(type, data) {
-        console.log(`type: ${type}`);
-
         switch(type) {
             case 'control':
                 const {key, isHold} = data;

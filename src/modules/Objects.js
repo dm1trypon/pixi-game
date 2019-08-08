@@ -1,7 +1,9 @@
 module.exports = class Objects {
     constructor(nickname) {
+        this.weapon = 'blaster';
         this.players = [];
         this.bullets = [];
+        this.scene = [];
         this.nickname = nickname;
         this.resolution = {
             width: 1920,
@@ -17,8 +19,15 @@ module.exports = class Objects {
         this.bullets.push(idBullet);
     }
 
+    addScene(name) {
+        this.scene.push(name);
+    }
+
+    delScene(name) {
+        this.scene.splice(this.scene.indexOf(name), 1);
+    }
+
     delPlayer(nickname) {
-        console.log(`DEL_PLAYERS: ${nickname}`);
         this.players.splice(this.players.indexOf(nickname), 1);
     }
 
@@ -26,13 +35,24 @@ module.exports = class Objects {
         this.bullets.splice(this.bullets.indexOf(idBullet), 1);
     }
 
+    setWeapon(weapon) {
+        this.weapon = weapon;
+    }
+
+    get getWeapon() {
+        return this.weapon;
+    }
+
     get getPlayers() {
-        console.log(`OWN_PLAYERS: ${this.players}`);
         return this.players;
     }
 
     get getBullets() {
         return this.bullets;
+    }
+
+    get getScene() {
+        return this.scene;
     }
 
     get getNickname() {

@@ -5,7 +5,7 @@ const Control = require('./Control');
 module.exports = class GameClient {
     constructor(host, port, nickname) {
         this.client = new WebSocket(`ws://${host}:${port}/`);
-        this.pixiApp = new PixiApp();
+        this.pixiApp = new PixiApp({width: 800, height: 600});
         this.parser = new Parser(nickname, this.pixiApp);
         this.parser.setClient(this.client);
     }

@@ -12,7 +12,15 @@ module.exports = class Control {
         this.setKeys();
         this.setEvents();
 
-        this.framer = new Framer();
+        new Framer(parser, this);
+    }
+
+    get getMousePos() {
+        return {mousePos: this.mousePos}
+    }
+
+    get getIsPressed() {
+        return this.isPressed;
     }
 
     setKeys() {
@@ -35,16 +43,12 @@ module.exports = class Control {
     setEvents() {
         const {parser, directions, keysMap} = this;
 
-        document.addEventListener('mousedown', async () => {
-            const {posX, posY} = this.mousePos;
-
-            this.interval = setInterval(() => {
-                parser.onSend(parser.toJson('shot', {posX, posY, weapon: 'plazma'}));
-            }, 50);
+        document.addEventListener('mousedown', () => {
+            this.isPressed = true;
         });
 
         document.addEventListener('mouseup', () => {
-            clearInterval(this.interval);
+            this.isPressed = false;
         });
 
         document.addEventListener('mousemove', event => {
