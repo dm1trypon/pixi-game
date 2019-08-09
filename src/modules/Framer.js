@@ -1,7 +1,10 @@
+const Objects = require('./Objects');
+
 module.exports = class Framer {
     constructor(parser, control) {
         this.parser = parser;
         this.control = control;
+        this.objects = Objects.getInstance();
 
         this.setAnimation();
     }
@@ -19,8 +22,11 @@ module.exports = class Framer {
 
     step() {
         const {parser, control} = this;
-        const {mousePos: {posX: x, posY: y}} = control.getMousePos;
-        const weapon = parser.getObjects.getWeapon;
+        const {mousePos: {posX, posY}} = control.getMousePos;
+        const weapon = this.objects.getWeapon;
+
+        const camera = Objects.getInstance().getCamera;
+        const {ofPosX, ofPosY} = camera.setCursor({posX, posY});
 
         if (!control.getIsPressed) {
             window.requestAnimationFrame(this.step.bind(this));
@@ -28,7 +34,7 @@ module.exports = class Framer {
             return;
         }
 
-        parser.onSend(parser.toJson('shot', {x, y, weapon}));
+        parser.onSend(parser.toJson('cursor', {posX: ofPosX + 50, posY: ofPosY + 50, isShot: true, weapon}));
 
         window.requestAnimationFrame(this.step.bind(this));
     }

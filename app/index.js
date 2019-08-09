@@ -23,6 +23,10 @@ router.get('/scene/', (_req, res) => {
   res.sendFile(path.resolve('./app/img/scene.jpg'));
 });
 
+router.get('/cursor/', (_req, res) => {
+  res.sendFile(path.resolve('./app/img/cursor.png'));
+});
+
 app.use('/', router);
 app.listen(3000, () => {
   console.log('Example app listening on port 3000!');

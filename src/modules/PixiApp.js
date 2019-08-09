@@ -1,4 +1,6 @@
 const PIXI = require('pixi.js');
+const Camera = require('./Camera');
+const Objects = require('./Objects');
 
 module.exports = class PixiApp {
     constructor(resolution) {
@@ -6,9 +8,17 @@ module.exports = class PixiApp {
         
         const {width, height} = this.resolution;
 
+        this.objects = Objects.getInstance();
+        this.camera = new Camera(resolution);
+        this.objects.setCamera(this.camera);
+
         this.app = new PIXI.Application({
             width, height, backgroundColor: 0x000000, resolution: window.devicePixelRatio || 1,
         });
+
+        const defaultIcon = "url('http://localhost:3000/cursor'),auto";
+
+        this.app.renderer.plugins.interaction.cursorStyles.default = defaultIcon;
 
         this.players = {};
         this.bullets = {};
@@ -22,39 +32,62 @@ module.exports = class PixiApp {
     }
 
     addScene(data) {
-        const {posX, posY, width, height} = data;
+        const {name, posX, posY, width, height} = data;
         const scene = new PIXI.TilingSprite(this.txScene, width, height);
 
         scene.x = posX;
         scene.y = posY;
         scene.width = width;
         scene.height = height;
+        scene.zIndex = 0;
 
-        this.scenes['scene'] = scene;
+        this.scenes[name] = scene;
         this.app.stage.addChild(scene);
     }
 
     addPlayer(data) {
         const player = new PIXI.Sprite(this.txPlayer);
         const {nickname, posX, posY} = data;
+        const {width: pWidth, height: pHeight} = this.objects.getSizePlayer;
 
-        player.x = posX;
-        player.y = posY;
-        player.width = 100;
-        player.height = 100;
+        if (this.objects.getNickname === nickname) {
+            const {width, height} = this.resolution;
+
+            this.camera.setOffsetFactor({posX, posY});
+
+            player.x = width / 2 - pWidth / 2;
+            player.y = height / 2 - pHeight / 2;
+        } else {
+            const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
+
+            player.x = ofPosX - pWidth / 2;
+            player.y = ofPosY - pHeight / 2;
+        }
+
+        player.width = pWidth;
+        player.height = pHeight;
+        player.zIndex = 1;
+        player.pivot.x = pWidth / 2;
+        player.pivot.y = pHeight / 2;
 
         this.players[nickname] = player;
         this.app.stage.addChild(player);
     }
 
     addBullet(data) {
+        console.log(data);
         const bullet = new PIXI.Sprite(this.txBullet);
         const {idBullet, posX, posY} = data;
+        const {width: bWidth, height: bHeight} = this.objects.getSizeBullet;
+        
+        bullet.width = bWidth;
+        bullet.height = bHeight;
+        bullet.zIndex = 2;
 
-        bullet.width = 30;
-        bullet.height = 30;
-        bullet.x = posX;
-        bullet.y = posY;
+        const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
+
+        bullet.x = ofPosX;
+        bullet.y = ofPosY;
 
         this.bullets[idBullet] = bullet;
         this.app.stage.addChild(bullet);
@@ -85,7 +118,7 @@ module.exports = class PixiApp {
     }
 
     movePlayer(data) {
-        const {nickname, posX, posY} = data;
+        const {nickname, posX, posY, rotation} = data;
 
         if (!this.players.hasOwnProperty(nickname)) {
             console.log(`Can not find a player: ${nickname}`);
@@ -99,8 +132,18 @@ module.exports = class PixiApp {
             return;
         }
 
-        object.x = posX;
-        object.y = posY;
+        if (this.objects.getNickname === nickname) {
+            this.camera.setOffsetFactor({posX, posY});
+            object.rotation = rotation / 3.14;
+
+            return;
+        }
+
+        const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
+
+        object.x = ofPosX;
+        object.y = ofPosY;
+        object.rotation = rotation / 3.14;
     }
 
     moveBullet(data) {
@@ -118,8 +161,31 @@ module.exports = class PixiApp {
             return;
         }
 
-        object.x = posX;
-        object.y = posY;
+        const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
+
+        object.x = ofPosX;
+        object.y = ofPosY;
+    }
+
+    moveScene(data) {
+        const {name, posX, posY} = data;
+
+        if (!this.scenes.hasOwnProperty(name)) {
+            console.log(`Can not find a bullet: ${name}`);
+
+            return;
+        }
+        
+        const object = this.scenes[name];
+
+        if (!object) {
+            return;
+        }
+
+        const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
+
+        object.x = ofPosX;
+        object.y = ofPosY;
     }
 }
 

@@ -1,15 +1,11 @@
 const Objects = require('./Objects');
 
 module.exports = class Parser {
-    constructor(nickname, pixiApp) {
+    constructor(pixiApp) {
         this.pixiApp = pixiApp;
-        this.objects = new Objects(nickname);
         this.client = null;
         this.shot = true;
-    }
-
-    get getObjects() {
-        return this.objects;
+        this.objects = Objects.getInstance();
     }
 
     onSend(data) {
@@ -29,7 +25,11 @@ module.exports = class Parser {
                     return;
                 }
 
-                this.client.send(this.toJson(jsonData.method, {}));
+                const {width: resWidth, height: resHeight} = this.objects.getResolution;
+
+                console.log(resWidth, resHeight);
+
+                this.client.send(this.toJson(jsonData.method, {nickname: this.objects.getNickname, width: resWidth / 2 + 50, height: resHeight / 2 + 50}));
                 
                 break;
             
@@ -40,7 +40,6 @@ module.exports = class Parser {
                 const ownPlayers = this.objects.getPlayers;
                 const ownBullets = this.objects.getBullets;
 
-                let sNames = [];
                 let bNames = [];
                 let pNames = [];
 
@@ -52,11 +51,11 @@ module.exports = class Parser {
                     this.pixiApp.addScene(dataScene);
                 }
 
-                sNames.push()
+                this.pixiApp.moveScene(dataScene);
 
                 for (const player of players) {
-                    const {nickname, pos_x: posX, pos_y: posY} = player;
-                    const dataPlayer = {nickname, posX, posY};
+                    const {nickname, pos_x: posX, pos_y: posY, rotation} = player;
+                    const dataPlayer = {nickname, posX, posY, rotation};
 
                     pNames.push(nickname);
     
@@ -144,11 +143,13 @@ module.exports = class Parser {
                 return JSON.stringify(cursorJson);
 
             case 'verify':
+                const {nickname, width, height} = data;
+
                 const verifyJson = {
                     method: type,
-                    nickname: this.objects.getNickname,
-                    width: 1920,
-                    height: 1080,
+                    nickname: nickname,
+                    width,
+                    height,
                 };
 
                 console.log(`json: ${JSON.stringify(verifyJson)}`);

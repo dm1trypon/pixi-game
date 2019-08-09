@@ -1,4 +1,5 @@
 const Framer = require('./Framer');
+const Objects = require('./Objects');
 
 module.exports = class Control {
     constructor(parser) {
@@ -8,11 +9,12 @@ module.exports = class Control {
         this.isPressed = false;
         this.interval = null;
         this.mousePos = {posX: null, posY: null};
+        this.objects = Objects.getInstance();
         
         this.setKeys();
         this.setEvents();
 
-        // new Framer(parser, this);
+        new Framer(parser, this);
     }
 
     get getMousePos() {
@@ -41,28 +43,37 @@ module.exports = class Control {
     }
 
     setEvents() {
+        const camera = this.objects.getCamera;
         const {parser, directions, keysMap} = this;
 
         document.addEventListener('mousedown', () => {
             this.isPressed = true;
         });
 
-        document.addEventListener('mouseup', () => {
+        document.addEventListener('mouseup', event => {
             this.isPressed = false;
             
             const {clientX: posX, clientY: posY} = event;
+            const {ofPosX, ofPosY} = camera.setCursor({posX, posY});
 
             this.mousePos = {posX, posY};
 
-            parser.onSend(parser.toJson('cursor', {posX, posY, isShot: this.isPressed}));
+            parser.onSend(parser.toJson('cursor', {posX: ofPosX + 50, posY: ofPosY + 50, isShot: this.isPressed}));
         });
 
         document.addEventListener('mousemove', event => {
             const {clientX: posX, clientY: posY} = event;
+            const {ofPosX, ofPosY} = camera.setCursor({posX, posY});
+
+            console.log({ofPosX, ofPosY});
 
             this.mousePos = {posX, posY};
-            
-            parser.onSend(parser.toJson('cursor', {posX, posY, isShot: this.isPressed}));
+
+            if (this.isPressed) {
+                return;
+            }
+
+            parser.onSend(parser.toJson('cursor', {posX: ofPosX + 50, posY: ofPosY + 50, isShot: this.isPressed}));
         });
 
         document.addEventListener('keydown', event => {

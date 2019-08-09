@@ -1,14 +1,33 @@
 module.exports = class Objects {
-    constructor(nickname) {
+    constructor() {
         this.weapon = 'blaster';
         this.players = [];
         this.bullets = [];
         this.scene = [];
+        this.nickname = null;
+        this.resolution = null;
+        this.sizePlayer = {width: 100, height: 100};
+        this.sizeBullet = {width: 30, height: 30};
+        this.camera = null;
+    }
+
+    static getInstance(...args) {
+        if (!this.instance) {
+            this.instance = new this(...args);
+        }
+
+        return this.instance;
+    }
+
+    setCamera(camera) {
+        this.camera = camera;
+    }
+
+    setData(data) {
+        const {nickname, resolution} = data;
+
         this.nickname = nickname;
-        this.resolution = {
-            width: 1920,
-            height: 1080,
-        };
+        this.resolution = resolution;
     }
 
     addPlayer(nickname) {
@@ -61,5 +80,17 @@ module.exports = class Objects {
 
     get getResolution() {
         return this.resolution;
+    }
+
+    get getSizePlayer() {
+        return this.sizePlayer;
+    }
+
+    get getSizeBullet() {
+        return this.sizeBullet;
+    }
+
+    get getCamera() {
+        return this.camera;
     }
 }
