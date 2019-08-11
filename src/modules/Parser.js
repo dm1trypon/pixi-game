@@ -27,9 +27,7 @@ module.exports = class Parser {
 
                 const {width: resWidth, height: resHeight} = this.objects.getResolution;
 
-                console.log(resWidth, resHeight);
-
-                this.client.send(this.toJson(jsonData.method, {nickname: this.objects.getNickname, width: resWidth / 2 + 50, height: resHeight / 2 + 50}));
+                this.client.send(this.toJson(jsonData.method, {nickname: this.objects.getNickname, width: resWidth / 2, height: resHeight / 2}));
                 
                 break;
             
@@ -53,9 +51,13 @@ module.exports = class Parser {
 
                 this.pixiApp.moveScene(dataScene);
 
+                const playersObjs = {};
+
                 for (const player of players) {
-                    const {nickname, pos_x: posX, pos_y: posY, rotation} = player;
-                    const dataPlayer = {nickname, posX, posY, rotation};
+                    const {nickname, pos_x: posX, pos_y: posY, width, height, rotation} = player;
+                    const dataPlayer = {nickname, posX, posY, width, height, rotation};
+                    
+                    playersObjs[nickname] = dataPlayer;
 
                     pNames.push(nickname);
     
@@ -68,8 +70,8 @@ module.exports = class Parser {
                 }
 
                 for (const bullet of bullets) {
-                    const {pos_x: posX, pos_y: posY, id_bullet: idBullet} = bullet;
-                    const dataBullet = {idBullet, posX, posY};
+                    const {pos_x: posX, pos_y: posY, id_bullet: idBullet, width, height} = bullet;
+                    const dataBullet = {idBullet, posX, posY, width, height};
 
                     bNames.push(idBullet);
     
@@ -87,7 +89,7 @@ module.exports = class Parser {
                     }
 
                     this.objects.delPlayer(playerName);
-                    this.pixiApp.delPlayer(playerName);
+                    this.pixiApp.delPlayer(playersObjs[playerName]);
                 }
 
                 for (const idBullet of ownBullets) {
@@ -127,13 +129,15 @@ module.exports = class Parser {
                 return JSON.stringify(controlJson);
 
             case 'cursor':
-                const {posX, posY, isShot} = data;
+                const {posX, posY, offsetX, offsetY, isShot} = data;
 
                 const cursorJson = {
                     method: type,
                     nickname: this.objects.getNickname,
                     pos_x: posX,
                     pos_y: posY,
+                    offset_x: offsetX,
+                    offset_y: offsetY,
                     is_shot: isShot,
                     weapon: this.objects.getWeapon,
                 }

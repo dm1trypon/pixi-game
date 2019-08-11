@@ -53,19 +53,17 @@ module.exports = class Control {
         document.addEventListener('mouseup', event => {
             this.isPressed = false;
             
-            const {clientX: posX, clientY: posY} = event;
+            const {layerX: posX, layerY: posY} = event;
             const {ofPosX, ofPosY} = camera.setCursor({posX, posY});
 
             this.mousePos = {posX, posY};
 
-            parser.onSend(parser.toJson('cursor', {posX: ofPosX + 50, posY: ofPosY + 50, isShot: this.isPressed}));
+            parser.onSend(parser.toJson('cursor', {posX: posX + 50, posY: posY + 50, offsetX: ofPosX + 50, offsetY: ofPosY + 50, isShot: this.isPressed}));
         });
 
         document.addEventListener('mousemove', event => {
-            const {clientX: posX, clientY: posY} = event;
+            const {layerX: posX, layerY: posY} = event;
             const {ofPosX, ofPosY} = camera.setCursor({posX, posY});
-
-            console.log({ofPosX, ofPosY});
 
             this.mousePos = {posX, posY};
 
@@ -73,7 +71,7 @@ module.exports = class Control {
                 return;
             }
 
-            parser.onSend(parser.toJson('cursor', {posX: ofPosX + 50, posY: ofPosY + 50, isShot: this.isPressed}));
+            parser.onSend(parser.toJson('cursor', {posX: posX + 50, posY: posY + 50, offsetX: ofPosX + 50, offsetY: ofPosY + 50, isShot: this.isPressed}));
         });
 
         document.addEventListener('keydown', event => {

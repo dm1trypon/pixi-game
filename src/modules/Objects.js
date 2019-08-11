@@ -6,8 +6,6 @@ module.exports = class Objects {
         this.scene = [];
         this.nickname = null;
         this.resolution = null;
-        this.sizePlayer = {width: 100, height: 100};
-        this.sizeBullet = {width: 30, height: 30};
         this.camera = null;
     }
 
@@ -80,14 +78,6 @@ module.exports = class Objects {
 
     get getResolution() {
         return this.resolution;
-    }
-
-    get getSizePlayer() {
-        return this.sizePlayer;
-    }
-
-    get getSizeBullet() {
-        return this.sizeBullet;
     }
 
     get getCamera() {

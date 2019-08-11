@@ -7,7 +7,7 @@ module.exports = class GameClient {
     constructor(host, port, nickname) {
         this.client = new WebSocket(`ws://${host}:${port}/`);
 
-        const resolution = {width: 1280, height: 800};
+        const resolution = {width: 1600, height: 900};
 
         const objects = Objects.getInstance();
         objects.setData({nickname, resolution});
@@ -36,6 +36,7 @@ module.exports = class GameClient {
         };
 
         this.client.onmessage = message => {
+            console.log(message.data);
             this.parser.work(message.data);
         };
 

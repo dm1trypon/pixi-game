@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const router = express.Router();
 const path = require('path');
+const fs = require('fs');
 
 router.get('/', (_req, res) => {
   res.sendFile(`${path.join(__dirname)}/express/index.html`);
@@ -25,6 +26,22 @@ router.get('/scene/', (_req, res) => {
 
 router.get('/cursor/', (_req, res) => {
   res.sendFile(path.resolve('./app/img/cursor.png'));
+});
+
+router.get('/explosion/:idImg', ({params}, res) => {
+  const {idImg} = params;
+
+  if (!idImg) {
+    return;
+  }
+
+  const fileName = `./app/img/explosion/explosion${idImg}.png`;
+  
+  if (!fs.existsSync(fileName)) {
+    return;
+  }
+
+  res.sendFile(path.resolve(`./app/img/explosion/explosion${idImg}.png`));
 });
 
 app.use('/', router);

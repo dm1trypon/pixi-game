@@ -23,18 +23,19 @@ module.exports = class Framer {
     step() {
         const {parser, control} = this;
         const {mousePos: {posX, posY}} = control.getMousePos;
-        const weapon = this.objects.getWeapon;
 
         const camera = Objects.getInstance().getCamera;
         const {ofPosX, ofPosY} = camera.setCursor({posX, posY});
 
-        if (!control.getIsPressed) {
+        const {getIsPressed} = control;
+
+        if (!getIsPressed) {
             window.requestAnimationFrame(this.step.bind(this));
 
             return;
         }
 
-        parser.onSend(parser.toJson('cursor', {posX: ofPosX + 50, posY: ofPosY + 50, isShot: true, weapon}));
+        parser.onSend(parser.toJson('cursor', {posX: posX + 50, posY: posY + 50, offsetX: ofPosX + 50, offsetY: ofPosY + 50, isShot: getIsPressed}));
 
         window.requestAnimationFrame(this.step.bind(this));
     }
