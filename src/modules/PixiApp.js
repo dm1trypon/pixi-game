@@ -1,6 +1,7 @@
 const PIXI = require('pixi.js');
 const Camera = require('./Camera');
 const Objects = require('./Objects');
+const TextInput = require('./TextInput');
 
 module.exports = class PixiApp {
     constructor(resolution) {
@@ -13,7 +14,7 @@ module.exports = class PixiApp {
         this.objects.setCamera(this.camera);
 
         this.app = new PIXI.Application({
-            width, height, backgroundColor: 0x000000, resolution: window.devicePixelRatio || 1,
+            width, height, backgroundColor: 0x123123, resolution: window.devicePixelRatio || 1,
         });
 
         const defaultIcon = "url('http://localhost:3000/cursor'),auto";
@@ -29,6 +30,19 @@ module.exports = class PixiApp {
         this.txScene = PIXI.Texture.from('http://localhost:3000/scene');
 
         document.body.appendChild(this.app.view);
+
+        this.addMenu();
+    }
+
+    addMenu() {
+        const menu = new TextInput('text', {fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
+
+        // menu.x = 100;
+        // menu.y = 100;
+        // menu.width = 200;
+        // menu.height = 50;
+
+        this.app.stage.addChild(menu.create());
     }
 
     addScene(data) {
@@ -42,7 +56,7 @@ module.exports = class PixiApp {
         scene.zIndex = 0;
 
         this.scenes[name] = scene;
-        this.app.stage.addChild(scene);
+        // this.app.stage.addChild(scene);
     }
 
     addExplosion(data) {
@@ -71,7 +85,7 @@ module.exports = class PixiApp {
         animatedCapguy.loop = false;
         animatedCapguy.play();
 
-        this.app.stage.addChild(animatedCapguy);
+        // this.app.stage.addChild(animatedCapguy);
     }
 
     addPlayer(data) {
@@ -99,7 +113,7 @@ module.exports = class PixiApp {
         player.pivot.y = 130;
 
         this.players[nickname] = player;
-        this.app.stage.addChild(player);
+        // this.app.stage.addChild(player);
     }
 
     addBullet(data) {
@@ -116,7 +130,7 @@ module.exports = class PixiApp {
         bullet.y = ofPosY;
 
         this.bullets[idBullet] = bullet;
-        this.app.stage.addChild(bullet);
+        // this.app.stage.addChild(bullet);
     }
 
     delPlayer(data) {
