@@ -36,7 +36,6 @@ module.exports = class GameClient {
         };
 
         this.client.onmessage = message => {
-            console.log(message.data);
             this.parser.work(message.data);
         };
 

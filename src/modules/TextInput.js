@@ -1,16 +1,19 @@
 const PIXI = require('pixi.js');
 
 module.exports = class TextInput {
-    constructor(text, style) {
+    constructor(text, style, app) {
         this.text = text;
         this.isClicked = false;
         this.style = style;
+        this.app = app;
     }
 
     create() {
         console.log(this.style);
 
-        const textInput = new PIXI.Text('', this.style);
+        const textInput = new PIXI.Text(this.text, this.style);
+
+        textInput.interactive = true;
 
         this.setEvents(textInput);
 
@@ -18,8 +21,14 @@ module.exports = class TextInput {
     }
 
     setEvents(textInput) {
-        textInput.on('click', event => {
+        textInput.on('click', () => {
             this.isClicked = true;
+            console.log('CLICK!');
+        });
+
+        this.app.on('click', () => {
+            this.isClicked = false;
+            console.log('OUTCLICK!');
         });
 
         document.addEventListener('keydown', event => {

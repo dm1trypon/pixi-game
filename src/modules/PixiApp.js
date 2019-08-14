@@ -37,10 +37,10 @@ module.exports = class PixiApp {
     addMenu() {
         const menu = new TextInput('text', {fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
 
-        // menu.x = 100;
-        // menu.y = 100;
-        // menu.width = 200;
-        // menu.height = 50;
+        menu.x = 100;
+        menu.y = 100;
+        menu.width = 200;
+        menu.height = 50;
 
         this.app.stage.addChild(menu.create());
     }
