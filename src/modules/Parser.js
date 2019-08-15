@@ -1,7 +1,8 @@
 const Objects = require('./Objects');
 
 module.exports = class Parser {
-    constructor(pixiApp) {
+    constructor(pixiApp, gameClient) {
+        this.gameClient = gameClient;
         this.pixiApp = pixiApp;
         this.client = null;
         this.shot = true;
@@ -20,6 +21,17 @@ module.exports = class Parser {
         const jsonData = JSON.parse(data);
 
         switch (jsonData.method) {
+            case 'ping':
+                const {nickname, pingId} = jsonData;
+
+                if (nickname !== this.objects.getNickname) {
+                    return;
+                }
+
+                this.gameClient.onRecievedPing(pingId);
+                
+                return;
+
             case 'verify':
                 if (!this.client) {
                     return;
@@ -54,9 +66,13 @@ module.exports = class Parser {
                 const playersObjs = {};
 
                 for (const player of players) {
-                    const {nickname, pos_x: posX, pos_y: posY, width, height, rotation} = player;
+                    const {nickname, pos_x: posX, pos_y: posY, width, height, rotation, life} = player;
                     const dataPlayer = {nickname, posX, posY, width, height, rotation};
                     
+                    if (nickname === this.objects.nickname) {
+                        this.pixiApp.setHealth(life);
+                    }
+
                     playersObjs[nickname] = dataPlayer;
 
                     pNames.push(nickname);
@@ -70,8 +86,8 @@ module.exports = class Parser {
                 }
 
                 for (const bullet of bullets) {
-                    const {pos_x: posX, pos_y: posY, id_bullet: idBullet, width, height} = bullet;
-                    const dataBullet = {idBullet, posX, posY, width, height};
+                    const {pos_x: posX, pos_y: posY, id_bullet: idBullet, width, height, weapon, rotation} = bullet;
+                    const dataBullet = {idBullet, posX, posY, width, height, weapon, rotation};
 
                     bNames.push(idBullet);
     
@@ -127,6 +143,19 @@ module.exports = class Parser {
                 console.log(`json: ${JSON.stringify(controlJson)}`);
 
                 return JSON.stringify(controlJson);
+
+            case 'ping':
+                const {pingId} = data;
+
+                const pingJson = {
+                    method: type,
+                    nickname: this.objects.getNickname,
+                    pingId,
+                };
+
+                console.log(`json: ${JSON.stringify(pingJson)}`);
+
+                return JSON.stringify(pingJson);
 
             case 'cursor':
                 const {posX, posY, offsetX, offsetY, isShot} = data;

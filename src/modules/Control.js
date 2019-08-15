@@ -26,14 +26,17 @@ module.exports = class Control {
     }
 
     setKeys() {
-        this.keysMap.set("ArrowLeft", "left");
-        this.keysMap.set("ArrowRight", "right");
-        this.keysMap.set("ArrowUp", "up");
-        this.keysMap.set("ArrowDown", "down");
-        this.keysMap.set("a", "left");
-        this.keysMap.set("d", "right");
-        this.keysMap.set("w", "up");
-        this.keysMap.set("s", "down");
+        this.keysMap.set('ArrowLeft', 'left');
+        this.keysMap.set('ArrowRight', 'right');
+        this.keysMap.set('ArrowUp', 'up');
+        this.keysMap.set('ArrowDown', 'down');
+        this.keysMap.set('a', 'left');
+        this.keysMap.set('d', 'right');
+        this.keysMap.set('w', 'up');
+        this.keysMap.set('s', 'down');
+        this.keysMap.set('1', 'blaster');
+        this.keysMap.set('2', 'plazma');
+        this.keysMap.set('3', 'machine_gun');
     }
 
     isDirection(data) {
@@ -87,6 +90,12 @@ module.exports = class Control {
 
             const direction = keysMap.get(key);
 
+            if (this.isWeapons(key)) {
+                this.objects.setWeapon(direction);
+
+                return;
+            }            
+
             if (directions.includes(direction)) {
                 return;
             }
@@ -111,6 +120,10 @@ module.exports = class Control {
                 return;
             }
 
+            if (this.isWeapons(key)) {
+                return;
+            }
+
             this.onDirection(false);
 
             directions.splice(directions.indexOf(keysMap.get(key)), 1);
@@ -123,6 +136,10 @@ module.exports = class Control {
 
             this.onDirection(true);
         });
+    }
+
+    isWeapons(key) {
+        return key === '1' || key === '2' || key === '3';
     }
 
     onDirection(isHold) {

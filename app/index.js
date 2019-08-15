@@ -16,8 +16,16 @@ router.get('/player/', (_req, res) => {
   res.sendFile(path.resolve('./app/img/player.png'));
 });
 
-router.get('/bullet/', (_req, res) => {
-  res.sendFile(path.resolve('./app/img/bullet.png'));
+router.get('/blaster/', (_req, res) => {
+  res.sendFile(path.resolve('./app/img/blaster.png'));
+});
+
+router.get('/machineGun/', (_req, res) => {
+  res.sendFile(path.resolve('./app/img/machine_gun.png'));
+});
+
+router.get('/plazma/', (_req, res) => {
+  res.sendFile(path.resolve('./app/img/plazma.png'));
 });
 
 router.get('/scene/', (_req, res) => {

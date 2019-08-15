@@ -4,8 +4,9 @@ const Objects = require('./Objects');
 const TextInput = require('./TextInput');
 
 module.exports = class PixiApp {
-    constructor(resolution) {
+    constructor(resolution, parent) {
         this.resolution = resolution;
+        this.parent = parent;
         
         const {width, height} = this.resolution;
 
@@ -14,35 +15,59 @@ module.exports = class PixiApp {
         this.objects.setCamera(this.camera);
 
         this.app = new PIXI.Application({
-            width, height, backgroundColor: 0x123123, resolution: window.devicePixelRatio || 1,
+            width, height, backgroundColor: 0x000000, resolution: window.devicePixelRatio || 1,
         });
 
-        const defaultIcon = "url('http://localhost:3000/cursor'),auto";
+        const defaultIcon = "url('http://10.23.0.59:3000/cursor'),auto";
 
         this.app.renderer.plugins.interaction.cursorStyles.default = defaultIcon;
 
         this.players = {};
         this.bullets = {};
         this.scenes = {};
+        this.textInput = null;
+        this.health = null;
 
-        this.txPlayer = PIXI.Texture.from('http://localhost:3000/player');
-        this.txBullet = PIXI.Texture.from('http://localhost:3000/bullet');
-        this.txScene = PIXI.Texture.from('http://localhost:3000/scene');
+        this.txPlayer = PIXI.Texture.from('http://10.23.0.59:3000/player');
+        this.txPlazma = PIXI.Texture.from('http://10.23.0.59:3000/plazma');
+        this.txBlaster = PIXI.Texture.from('http://10.23.0.59:3000/blaster');
+        this.txMachineGun = PIXI.Texture.from('http://10.23.0.59:3000/machineGun');
+        this.txScene = PIXI.Texture.from('http://10.23.0.59:3000/scene');
 
         document.body.appendChild(this.app.view);
 
-        this.addMenu();
+        this.mainContainer = new PIXI.Container();
+        this.mainContainer.sortableChildren = true;
+        this.app.stage.addChild(this.mainContainer);
+    }
+
+    onStart(nickname) {
+        if (!nickname) {
+            return;
+        }
+
+        if (!this.textInput) {
+            return;
+        }
+
+        this.objects.nickname = nickname;
+        this.textInput.remove();
+        this.addHealth(100);
+        this.parent.start();
     }
 
     addMenu() {
-        const menu = new TextInput('text', {fontFamily : 'Arial', fontSize: 24, fill : 0xff1010, align : 'center'});
+        const {width, height} = this.resolution;
 
-        menu.x = 100;
-        menu.y = 100;
-        menu.width = 200;
-        menu.height = 50;
+        this.textInput = new TextInput({text: 'nickname', width: 400}, {fontFamily : 'Arial', fontSize: 80, fill : 0x000000, align : 'center'}, this);
 
-        this.app.stage.addChild(menu.create());
+        this.textInput.x = width / 2 - 200;
+        this.textInput.y = height / 2 - 40;
+        this.textInput.backgroundColor = 0xCCCCCC;
+        this.textInput.borderColor = 0xA9A9A9;
+        this.textInput.borderDepth = 5;
+
+        this.textInput.create();
     }
 
     addScene(data) {
@@ -53,30 +78,29 @@ module.exports = class PixiApp {
         scene.y = posY;
         scene.width = width;
         scene.height = height;
-        scene.zIndex = 0;
 
         this.scenes[name] = scene;
-        // this.app.stage.addChild(scene);
+        this.mainContainer.addChild(scene);
     }
 
     addExplosion(data) {
-        console.log(data);
         const {posX, posY, width, height} = data;
         const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
 
         const explosionFrames = [ 
-            'http://localhost:3000/explosion/0',
-            'http://localhost:3000/explosion/1',
-            'http://localhost:3000/explosion/2',
-            'http://localhost:3000/explosion/3',
-            'http://localhost:3000/explosion/4',
-            'http://localhost:3000/explosion/5',
-            'http://localhost:3000/explosion/6',
-            'http://localhost:3000/explosion/7',
-            'http://localhost:3000/explosion/8',
+            'http://10.23.0.59:3000/explosion/0',
+            'http://10.23.0.59:3000/explosion/1',
+            'http://10.23.0.59:3000/explosion/2',
+            'http://10.23.0.59:3000/explosion/3',
+            'http://10.23.0.59:3000/explosion/4',
+            'http://10.23.0.59:3000/explosion/5',
+            'http://10.23.0.59:3000/explosion/6',
+            'http://10.23.0.59:3000/explosion/7',
+            'http://10.23.0.59:3000/explosion/8',
         ];
         
         const animatedCapguy = PIXI.AnimatedSprite.fromFrames(explosionFrames);
+
         animatedCapguy.x = ofPosX;
         animatedCapguy.y = ofPosY;
         animatedCapguy.width = 200;
@@ -85,12 +109,29 @@ module.exports = class PixiApp {
         animatedCapguy.loop = false;
         animatedCapguy.play();
 
-        // this.app.stage.addChild(animatedCapguy);
+        this.mainContainer.addChild(animatedCapguy);
+    }
+
+    addHealth(health) {
+        const {height} = this.resolution;
+
+        this.health = new PIXI.Text(health, {fontFamily : 'Arial', fontSize: 80, fill : 0xCCCCCC});
+        this.health.x = 30;
+        this.health.y = height - 120;
+        this.health.zIndex = 50;
+
+        this.mainContainer.addChild(this.health);
+    }
+
+    setHealth(health) {
+        this.health.text = health;
     }
 
     addPlayer(data) {
         const player = new PIXI.Sprite(this.txPlayer);
         const {nickname, posX, posY, width: pWidth, height: pHeight} = data;
+
+        player.zIndex = 4;
 
         if (this.objects.getNickname === nickname) {
             const {width, height} = this.resolution;
@@ -108,29 +149,57 @@ module.exports = class PixiApp {
 
         player.width = pWidth;
         player.height = pHeight;
-        player.zIndex = 1;
         player.pivot.x = 130;
         player.pivot.y = 130;
 
         this.players[nickname] = player;
-        // this.app.stage.addChild(player);
+        this.mainContainer.addChild(player);
     }
 
     addBullet(data) {
-        const bullet = new PIXI.Sprite(this.txBullet);
-        const {idBullet, posX, posY, width: bWidth, height: bHeight} = data;
         
+        const {idBullet, posX, posY, width: bWidth, height: bHeight, weapon, rotation} = data;
+
+        let txWeapon;
+
+        switch (weapon) {
+            case 'blaster':
+                txWeapon = this.txBlaster;
+
+                break;
+
+            case 'plazma':
+                txWeapon = this.txPlazma;
+                
+                break;
+
+            case 'machine_gun':
+                txWeapon = this.txMachineGun;
+                
+                break;
+
+            default:
+                txWeapon = this.txBlaster;
+                    
+                break;
+        }
+        
+        const bullet = new PIXI.Sprite(txWeapon);
+
+        bullet.zIndex = 3;
         bullet.width = bWidth;
         bullet.height = bHeight;
-        bullet.zIndex = 2;
+        bullet.pivot.x = 40;
+        bullet.pivot.y = 40;
 
         const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
 
         bullet.x = ofPosX;
         bullet.y = ofPosY;
+        bullet.rotation = rotation * 3.14 / 180;
 
         this.bullets[idBullet] = bullet;
-        // this.app.stage.addChild(bullet);
+        this.mainContainer.addChild(bullet);
     }
 
     delPlayer(data) {
@@ -142,7 +211,7 @@ module.exports = class PixiApp {
             return;
         }
 
-        this.app.stage.removeChild(this.players[nickname]);
+        this.mainContainer.removeChild(this.players[nickname]);
         this.addExplosion(data);
 
         delete this.players.nickname;
@@ -155,7 +224,7 @@ module.exports = class PixiApp {
             return;
         }
 
-        this.app.stage.removeChild(this.bullets[idBullet]);
+        this.mainContainer.removeChild(this.bullets[idBullet]);
 
         delete this.bullets.idBullet;
     }
@@ -231,4 +300,3 @@ module.exports = class PixiApp {
         object.y = ofPosY;
     }
 }
-
