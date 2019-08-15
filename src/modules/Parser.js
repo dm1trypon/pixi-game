@@ -28,6 +28,7 @@ module.exports = class Parser {
                     return;
                 }
 
+                console.log(this.gameClien);
                 this.gameClient.onRecievedPing(pingId);
                 
                 return;

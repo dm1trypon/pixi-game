@@ -35,7 +35,7 @@ module.exports = class GameClient {
 
         this.client = new WebSocket(`ws://${host}:${port}/`);
         
-        this.parser = new Parser(this.pixiApp);
+        this.parser = new Parser(this.pixiApp, this);
         this.parser.setClient(this.client);
 
         this.ping = new Ping(this.client, this.parser);

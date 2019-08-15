@@ -18,7 +18,7 @@ module.exports = class PixiApp {
             width, height, backgroundColor: 0x000000, resolution: window.devicePixelRatio || 1,
         });
 
-        const defaultIcon = "url('http://10.23.0.59:3000/cursor'),auto";
+        const defaultIcon = "url('http://localhost:3000/cursor'),auto";
 
         this.app.renderer.plugins.interaction.cursorStyles.default = defaultIcon;
 
@@ -28,11 +28,11 @@ module.exports = class PixiApp {
         this.textInput = null;
         this.health = null;
 
-        this.txPlayer = PIXI.Texture.from('http://10.23.0.59:3000/player');
-        this.txPlazma = PIXI.Texture.from('http://10.23.0.59:3000/plazma');
-        this.txBlaster = PIXI.Texture.from('http://10.23.0.59:3000/blaster');
-        this.txMachineGun = PIXI.Texture.from('http://10.23.0.59:3000/machineGun');
-        this.txScene = PIXI.Texture.from('http://10.23.0.59:3000/scene');
+        this.txPlayer = PIXI.Texture.from('http://localhost:3000/player');
+        this.txPlazma = PIXI.Texture.from('http://localhost:3000/plazma');
+        this.txBlaster = PIXI.Texture.from('http://localhost:3000/blaster');
+        this.txMachineGun = PIXI.Texture.from('http://localhost:3000/machineGun');
+        this.txScene = PIXI.Texture.from('http://localhost:3000/scene');
 
         document.body.appendChild(this.app.view);
 
@@ -88,15 +88,15 @@ module.exports = class PixiApp {
         const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
 
         const explosionFrames = [ 
-            'http://10.23.0.59:3000/explosion/0',
-            'http://10.23.0.59:3000/explosion/1',
-            'http://10.23.0.59:3000/explosion/2',
-            'http://10.23.0.59:3000/explosion/3',
-            'http://10.23.0.59:3000/explosion/4',
-            'http://10.23.0.59:3000/explosion/5',
-            'http://10.23.0.59:3000/explosion/6',
-            'http://10.23.0.59:3000/explosion/7',
-            'http://10.23.0.59:3000/explosion/8',
+            'http://localhost:3000/explosion/0',
+            'http://localhost:3000/explosion/1',
+            'http://localhost:3000/explosion/2',
+            'http://localhost:3000/explosion/3',
+            'http://localhost:3000/explosion/4',
+            'http://localhost:3000/explosion/5',
+            'http://localhost:3000/explosion/6',
+            'http://localhost:3000/explosion/7',
+            'http://localhost:3000/explosion/8',
         ];
         
         const animatedCapguy = PIXI.AnimatedSprite.fromFrames(explosionFrames);
@@ -133,6 +133,9 @@ module.exports = class PixiApp {
 
         player.zIndex = 4;
 
+        player.width = pWidth;
+        player.height = pHeight;
+
         if (this.objects.getNickname === nickname) {
             const {width, height} = this.resolution;
 
@@ -147,8 +150,6 @@ module.exports = class PixiApp {
             player.y = ofPosY;
         }
 
-        player.width = pWidth;
-        player.height = pHeight;
         player.pivot.x = 130;
         player.pivot.y = 130;
 
@@ -186,16 +187,17 @@ module.exports = class PixiApp {
         
         const bullet = new PIXI.Sprite(txWeapon);
 
-        bullet.zIndex = 3;
-        bullet.width = bWidth;
+        bullet.zIndex = 7;
+        bullet.width = bWidth ;
         bullet.height = bHeight;
-        bullet.pivot.x = 40;
-        bullet.pivot.y = 40;
 
         const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
 
         bullet.x = ofPosX;
         bullet.y = ofPosY;
+        bullet.pivot.x = 80;
+        bullet.pivot.y = 30;
+
         bullet.rotation = rotation * 3.14 / 180;
 
         this.bullets[idBullet] = bullet;
