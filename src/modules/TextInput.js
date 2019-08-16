@@ -46,8 +46,8 @@ module.exports = class TextInput {
 
         this.setEvents();
 
-        this.mainContainer .addChild(this.menuBlock);
-        this.mainContainer .addChild(this.pixiText);
+        this.mainContainer.addChild(this.menuBlock);
+        this.mainContainer.addChild(this.pixiText);
 
         return {textInput: {menuBlock: this.menuBlock, pixiText: this.pixiText}};
     }

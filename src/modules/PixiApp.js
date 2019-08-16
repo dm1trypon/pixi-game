@@ -2,6 +2,7 @@ const PIXI = require('pixi.js');
 const Camera = require('./Camera');
 const Objects = require('./Objects');
 const TextInput = require('./TextInput');
+const {PING_COLOR} = require('./consts');
 
 module.exports = class PixiApp {
     constructor(resolution, parent) {
@@ -25,7 +26,12 @@ module.exports = class PixiApp {
         this.players = {};
         this.bullets = {};
         this.scenes = {};
+
+        this.playersLifes = {};
+
         this.textInput = null;
+        this.pingIdentificator = null;
+        this.pingText = null;
         this.health = null;
 
         this.txPlayer = PIXI.Texture.from('http://localhost:3000/player');
@@ -53,7 +59,47 @@ module.exports = class PixiApp {
         this.objects.nickname = nickname;
         this.textInput.remove();
         this.addHealth(100);
+        this.addPingIdentificator();
         this.parent.start();
+    }
+
+    addPingIdentificator() {
+        const {width} = this.resolution;
+        const relativeX = width - 100;
+        const relativeY = 20;
+        const blockWidth = 50;
+        const blockHeight = 50;
+
+        this.pingIdentificator = new PIXI.Graphics();
+        this.pingIdentificator.zIndex = 10;
+        this.pingIdentificator.beginFill(PING_COLOR.green);
+        this.pingIdentificator.drawRect(relativeX, relativeY, blockWidth, blockHeight);
+
+        this.pingText = new PIXI.Text('0', {fontFamily : 'Arial', fontSize: 80, fill : 0x000000, align : 'center'});
+        this.pingText.zIndex = 11;
+        this.pingText.x = relativeX;
+        this.pingText.y = relativeY;
+        this.pingText.width = blockWidth;
+        this.pingText.height = blockHeight;
+
+        this.mainContainer.addChild(this.pingIdentificator);
+        this.mainContainer.addChild(this.pingText);
+    }
+
+    setPingIdentificator(difference) {
+        console.log(`difference: ${difference}`);
+        let color = PING_COLOR.green;
+
+        if (difference < 6 && difference > 2) {
+            color = PING_COLOR.yellow;
+        }
+
+        if (difference > 6) {
+            color = PING_COLOR.red;
+        }
+
+        this.pingIdentificator.tint = color;
+        this.pingText.text = difference;
     }
 
     addMenu() {
@@ -130,6 +176,8 @@ module.exports = class PixiApp {
     addPlayer(data) {
         const player = new PIXI.Sprite(this.txPlayer);
         const {nickname, posX, posY, width: pWidth, height: pHeight} = data;
+        
+        this.playersLifes[nickname] = data;
 
         player.zIndex = 4;
 
@@ -195,10 +243,10 @@ module.exports = class PixiApp {
 
         bullet.x = ofPosX;
         bullet.y = ofPosY;
-        bullet.pivot.x = 80;
-        bullet.pivot.y = 30;
+        // bullet.pivot.x = 80;
+        // bullet.pivot.y = 30;
 
-        bullet.rotation = rotation * 3.14 / 180;
+        // bullet.rotation = rotation * 3.14 / 180;
 
         this.bullets[idBullet] = bullet;
         this.mainContainer.addChild(bullet);
@@ -206,6 +254,8 @@ module.exports = class PixiApp {
 
     delPlayer(data) {
         const {nickname} = data;
+
+        delete this.playersLifes[nickname];
 
         if (!this.players.hasOwnProperty(nickname)) {
             console.log(`Can not find a player: ${nickname}`);
@@ -232,7 +282,13 @@ module.exports = class PixiApp {
     }
 
     movePlayer(data) {
-        const {nickname, posX, posY, rotation} = data;
+        const {nickname, posX, posY, rotation, life} = data;
+
+        if (this.playersLifes[nickname].life < life) {
+            this.addExplosion(this.playersLifes[nickname]);  
+        }
+
+        this.playersLifes[nickname] = data;
 
         if (!this.players.hasOwnProperty(nickname)) {
             console.log(`Can not find a player: ${nickname}`);

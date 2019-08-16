@@ -17,6 +17,10 @@ module.exports = class Parser {
         this.client.send(data);
     }
 
+    onPing(difference) {
+        this.pixiApp.setPingIdentificator(difference);
+    }
+
     work(data) {
         const jsonData = JSON.parse(data);
 
@@ -28,7 +32,6 @@ module.exports = class Parser {
                     return;
                 }
 
-                console.log(this.gameClien);
                 this.gameClient.onRecievedPing(pingId);
                 
                 return;
@@ -78,8 +81,8 @@ module.exports = class Parser {
 
                     pNames.push(nickname);
     
-                    if (!ownPlayers.includes(nickname)) {
-                        this.objects.addPlayer(nickname);
+                    if (!Object.keys(ownPlayers).includes(nickname)) {
+                        this.objects.addPlayer(dataPlayer);
                         this.pixiApp.addPlayer(dataPlayer);
                     }
     
@@ -100,13 +103,15 @@ module.exports = class Parser {
                     this.pixiApp.moveBullet(dataBullet);
                 }
     
-                for (const playerName of ownPlayers) {
+                for (const playerName of Object.keys(ownPlayers)) {
                     if (pNames.includes(playerName)) {
                         continue;
                     }
 
+                    console.log(ownPlayers);
+                    
+                    this.pixiApp.delPlayer(ownPlayers[playerName]);
                     this.objects.delPlayer(playerName);
-                    this.pixiApp.delPlayer(playersObjs[playerName]);
                 }
 
                 for (const idBullet of ownBullets) {

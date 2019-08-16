@@ -19,14 +19,18 @@ module.exports = class Ping {
     }
 
     stop(pingId) {
+        const {date, parser} = this;
+
         if (pingId !== this.pingId) {
             console.log(`Ping id ${this.pingId} failed!`);
 
             return;
         }
 
-        const difference = Date.now() - this.date;
+        const difference = Date.now() - date;
 
         console.log(`Ping: ${difference} ms`);
+
+        parser.onPing(difference);
     }
 }

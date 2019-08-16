@@ -1,7 +1,7 @@
 module.exports = class Objects {
     constructor() {
         this.weapon = 'blaster';
-        this.players = [];
+        this.players = {};
         this.bullets = [];
         this.scene = [];
         this.nickname = null;
@@ -28,8 +28,10 @@ module.exports = class Objects {
         this.resolution = resolution;
     }
 
-    addPlayer(nickname) {
-        this.players.push(nickname);
+    addPlayer(dataPlayer) {
+        const {nickname} = dataPlayer;
+
+        this.players[nickname] = dataPlayer;
     }
 
     addBullet(idBullet) {
@@ -45,7 +47,7 @@ module.exports = class Objects {
     }
 
     delPlayer(nickname) {
-        this.players.splice(this.players.indexOf(nickname), 1);
+        delete this.players[nickname];
     }
 
     delBullet(idBullet) {
