@@ -90,6 +90,8 @@ module.exports = class PixiApp {
         console.log(`difference: ${difference}`);
         let color = PING_COLOR.green;
 
+        difference = 10;
+
         if (difference < 6 && difference > 2) {
             color = PING_COLOR.yellow;
         }
@@ -97,6 +99,8 @@ module.exports = class PixiApp {
         if (difference > 6) {
             color = PING_COLOR.red;
         }
+
+        console.log(color);
 
         this.pingIdentificator.tint = color;
         this.pingText.text = difference;
@@ -131,7 +135,7 @@ module.exports = class PixiApp {
 
     addExplosion(data) {
         const {posX, posY, width, height} = data;
-        const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
+        // const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
 
         const explosionFrames = [ 
             'http://localhost:3000/explosion/0',
@@ -147,8 +151,8 @@ module.exports = class PixiApp {
         
         const animatedCapguy = PIXI.AnimatedSprite.fromFrames(explosionFrames);
 
-        animatedCapguy.x = ofPosX;
-        animatedCapguy.y = ofPosY;
+        animatedCapguy.x = posX;
+        animatedCapguy.y = posY;
         animatedCapguy.width = 200;
         animatedCapguy.height = 200;
         animatedCapguy.animationSpeed = 0.5;
@@ -179,7 +183,7 @@ module.exports = class PixiApp {
         
         this.playersLifes[nickname] = data;
 
-        player.zIndex = 4;
+        player.zIndex = 8;
 
         player.width = pWidth;
         player.height = pHeight;
@@ -255,7 +259,7 @@ module.exports = class PixiApp {
     delPlayer(data) {
         const {nickname} = data;
 
-        delete this.playersLifes[nickname];
+        // delete this.playersLifes[nickname];
 
         if (!this.players.hasOwnProperty(nickname)) {
             console.log(`Can not find a player: ${nickname}`);
