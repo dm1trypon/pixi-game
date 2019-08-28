@@ -25,6 +25,7 @@ module.exports = class PixiApp {
 
         this.players = {};
         this.bullets = {};
+        this.walls = {};
         this.scenes = {};
 
         this.playersLifes = {};
@@ -35,6 +36,7 @@ module.exports = class PixiApp {
         this.health = null;
 
         this.txPlayer = PIXI.Texture.from('http://localhost:3000/player');
+        this.txWall = PIXI.Texture.from('http://localhost:3000/wall');
         this.txPlazma = PIXI.Texture.from('http://localhost:3000/plazma');
         this.txBlaster = PIXI.Texture.from('http://localhost:3000/blaster');
         this.txMachineGun = PIXI.Texture.from('http://localhost:3000/machineGun');
@@ -75,7 +77,7 @@ module.exports = class PixiApp {
         this.pingIdentificator.beginFill(PING_COLOR.green);
         this.pingIdentificator.drawRect(relativeX, relativeY, blockWidth, blockHeight);
 
-        this.pingText = new PIXI.Text('0', {fontFamily : 'Arial', fontSize: 80, fill : 0x000000, align : 'center'});
+        this.pingText = new PIXI.Text('0', {fontFamily : 'Arial', fontSize: 80, fill : 0xFFFFFF, align : 'center'});
         this.pingText.zIndex = 11;
         this.pingText.x = relativeX;
         this.pingText.y = relativeY;
@@ -89,18 +91,19 @@ module.exports = class PixiApp {
     setPingIdentificator(difference) {
         console.log(`difference: ${difference}`);
         let color = PING_COLOR.green;
+        console.log(color);
 
         difference = 10;
 
         if (difference < 6 && difference > 2) {
             color = PING_COLOR.yellow;
+            console.log(color);
         }
 
         if (difference > 6) {
             color = PING_COLOR.red;
+            console.log(color);
         }
-
-        console.log(color);
 
         this.pingIdentificator.tint = color;
         this.pingText.text = difference;
@@ -165,7 +168,7 @@ module.exports = class PixiApp {
     addHealth(health) {
         const {height} = this.resolution;
 
-        this.health = new PIXI.Text(health, {fontFamily : 'Arial', fontSize: 80, fill : 0xCCCCCC});
+        this.health = new PIXI.Text(health, {fontFamily: 'Arial', fontSize: 80, fill: 0xCCCCCC});
         this.health.x = 30;
         this.health.y = height - 120;
         this.health.zIndex = 50;
@@ -207,6 +210,19 @@ module.exports = class PixiApp {
 
         this.players[nickname] = player;
         this.mainContainer.addChild(player);
+    }
+
+    addWall(data) {
+        const wall = new PIXI.Sprite(this.txWall);
+        const {posX, posY, idWall, width, height} = data;
+
+        wall.x = posX;
+        wall.y = posY;
+        wall.width = width;
+        wall.height = height;
+
+        this.walls[idWall] = wall;
+        this.mainContainer.addChild(wall);
     }
 
     addBullet(data) {
@@ -285,6 +301,18 @@ module.exports = class PixiApp {
         delete this.bullets.idBullet;
     }
 
+    delWall(idWall) {
+        if (!this.walls.hasOwnProperty(idWall)) {
+            console.log(`Can not find a wall: ${idWall}`);
+
+            return;
+        }
+
+        this.mainContainer.removeChild(this.walls[idWall]);
+
+        delete this.walls.idWall;
+    }
+
     movePlayer(data) {
         const {nickname, posX, posY, rotation, life} = data;
 
@@ -351,6 +379,27 @@ module.exports = class PixiApp {
         }
         
         const object = this.scenes[name];
+
+        if (!object) {
+            return;
+        }
+
+        const {ofPosX, ofPosY} = this.camera.setPositionObjects({posX, posY});
+
+        object.x = ofPosX;
+        object.y = ofPosY;
+    }
+
+    moveWall(data) {
+        const {idWall, posX, posY} = data;
+
+        if (!this.walls.hasOwnProperty(idWall)) {
+            console.log(`Can not find a wall: ${idWall}`);
+
+            return;
+        }
+        
+        const object = this.walls[idWall];
 
         if (!object) {
             return;

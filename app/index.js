@@ -16,6 +16,10 @@ router.get('/player/', (_req, res) => {
   res.sendFile(path.resolve('./app/img/player.png'));
 });
 
+router.get('/wall/', (_req, res) => {
+  res.sendFile(path.resolve('./app/img/wall.png'));
+});
+
 router.get('/blaster/', (_req, res) => {
   res.sendFile(path.resolve('./app/img/blaster.png'));
 });

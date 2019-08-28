@@ -3,6 +3,7 @@ module.exports = class Objects {
         this.weapon = 'blaster';
         this.players = {};
         this.bullets = [];
+        this.walls = [];
         this.scene = [];
         this.nickname = null;
         this.resolution = null;
@@ -34,6 +35,10 @@ module.exports = class Objects {
         this.players[nickname] = dataPlayer;
     }
 
+    addWall(idWall) {
+        this.walls.push(idWall);
+    }
+
     addBullet(idBullet) {
         this.bullets.push(idBullet);
     }
@@ -54,6 +59,10 @@ module.exports = class Objects {
         this.bullets.splice(this.bullets.indexOf(idBullet), 1);
     }
 
+    delWall(idWall) {
+        this.walls.splice(this.walls.indexOf(idWall), 1);
+    }
+
     setWeapon(weapon) {
         this.weapon = weapon;
     }
@@ -68,6 +77,10 @@ module.exports = class Objects {
 
     get getBullets() {
         return this.bullets;
+    }
+
+    get getWalls() {
+        return this.walls;
     }
 
     get getScene() {

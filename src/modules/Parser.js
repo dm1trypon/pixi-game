@@ -48,14 +48,16 @@ module.exports = class Parser {
                 break;
             
             case 'objects':
-                const {players, bullets, scene} = jsonData;
+                const {players, bullets, walls, scene} = jsonData;
 
                 const ownScene = this.objects.getScene;
                 const ownPlayers = this.objects.getPlayers;
                 const ownBullets = this.objects.getBullets;
+                const ownWalls = this.objects.getWalls;
 
                 let bNames = [];
                 let pNames = [];
+                let wNames = [];
 
                 const {pos_x: posX, pos_y: posY, width, height} = scene;
                 const dataScene = {name: 'scene', posX, posY, width, height};
@@ -102,13 +104,25 @@ module.exports = class Parser {
     
                     this.pixiApp.moveBullet(dataBullet);
                 }
+
+                for (const wall of walls) {
+                    const {pos_x: posX, pos_y: posY, id_wall: idWall, width, height} = wall;
+                    const dataWall = {idWall, posX, posY, width, height};
+
+                    wNames.push(idWall);
+    
+                    if (!ownWalls.includes(idWall)) {
+                        this.objects.addWall(idWall);
+                        this.pixiApp.addWall(dataWall);
+                    }
+    
+                    this.pixiApp.moveWall(dataWall);
+                }
     
                 for (const playerName of Object.keys(ownPlayers)) {
                     if (pNames.includes(playerName)) {
                         continue;
                     }
-
-                    console.log(ownPlayers);
                     
                     this.pixiApp.delPlayer(ownPlayers[playerName]);
                     this.objects.delPlayer(playerName);
@@ -121,6 +135,15 @@ module.exports = class Parser {
     
                     this.objects.delBullet(idBullet);
                     this.pixiApp.delBullet(idBullet);
+                }
+
+                for (const idWall of ownWalls) {
+                    if (wNames.includes(idWall)) {
+                        continue;
+                    }
+    
+                    this.objects.delWall(idWall);
+                    this.pixiApp.delWall(idWall);
                 }
 
                 break;
